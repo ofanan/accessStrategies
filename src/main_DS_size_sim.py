@@ -7,6 +7,7 @@ import pickle
 
 import python_simulator as sim
 from gen_requests import gen_requests
+from gen_requests import optimal_BF_size_per_cache_size
 # A main file for running a sim of access strategies for different DSs (Data Stores) sizes.
 
 num_of_DSs = 19
@@ -21,7 +22,7 @@ num_of_clients = 19
 
 ## Generate the requests to be fed into the simulation. For debugging / shorter runs, pick a prefix of the trace, of length max_trace_length
 max_trace_length=10000
-requests = gen_requests ('C:/Users/ofanan/Google Drive/Comnet/BF_n_Hash/Python_Infocom19/trace_5m_6.csv', max_trace_length)
+requests = gen_requests ('C:/Users/ofanan/Documents/traces/wiki/wiki1.1190448987.csv', max_trace_length)
 
 ## Code for generating a random dist and BW matrices
 #client_DS_dist = gen_rand_matrix(17)
@@ -33,13 +34,7 @@ client_DS_BW = np.ones((num_of_clients,num_of_DSs)) # + np.diag(np.infty * np.on
 bw_regularization = 0. # np.max(np.tril(client_DS_BW,-1))
 
 # Sizes of the bloom filters (number of cntrs), for chosen cache sizes, k=5 hash funcs, and designed false positive rate.
-# The values are taken from https://hur.st/bloomfilter
-# online resource calculating the optimal values
-BF_size_for_DS_size = {}
-BF_size_for_DS_size[0.01] = {20: 197, 40: 394, 60: 591, 80: 788, 100: 985, 200: 1970, 400: 3940, 600: 5910, 800: 7880, 1000: 9849, 1200: 11819, 1400: 13789, 1600: 15759, 2000: 19698, 2500: 24623, 3000: 29547}
-BF_size_for_DS_size[0.02] = {20: 164, 40: 328, 60: 491, 80: 655, 100: 819, 200: 1637, 400: 3273, 600: 4909, 800: 6545, 1000: 8181, 1200: 9817, 1400: 11453, 1600: 13089}
-BF_size_for_DS_size[0.03] = {1000: 7299}
-BF_size_for_DS_size[0.04] = {1000: 6711}
+BF_size_for_DS_size = optimal_BF_size_per_cache_size ()
 
 # Loop over all data store sizes, and all algorithms, and collect the data
 def run_sim_collection(DS_size_vals, FP_rate, beta, k_loc, requests, client_DS_dist, client_DS_BW, bw_regularization):

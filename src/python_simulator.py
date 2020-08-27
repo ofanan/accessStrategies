@@ -1,9 +1,6 @@
-# Main changes from previous versions:
-# total_access_cost is not normalized by beta anymore
-
 import numpy as np
 import pandas as pd
-import DataStore2 as DataStore
+import DataStore
 import Client
 import candidate
 import node
@@ -20,8 +17,6 @@ NUM_OF_ALGS = 6
 
 # client action: updated according to what client does
 # 0: init, 1: hit upon access of DSs, 2: miss upon access of DSs, 3: high DSs cost, prefer beta, 4: no pos ind, pay beta
-
-
 """
 key is an integer
 """

@@ -10,7 +10,8 @@ import datetime
 import python_simulator as sim
 
 # Currently need to specify the exact filename you would like to open and process
-f = open('2019_09_05_02_08_23_pickle_sim_dict_DS_size_200_1600_beta_100_kloc_5_FP_0.02', 'rb')
+#f = open('2019_09_05_02_08_23_pickle_sim_dict_DS_size_200_1600_beta_100_kloc_5_FP_0.02', 'rb')
+f = open ('../res/2019_09_04_00_47_41_pickle_sim_dict_DS_size_200_1600_beta_100_kloc_1_FP_0.02', 'rb')
 full_sim_dict = pickle.load(f)
 f.close()
 
