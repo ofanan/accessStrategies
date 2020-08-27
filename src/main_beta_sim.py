@@ -3,39 +3,20 @@
 # ========================================================================
 import numpy as np
 import pandas as pd
-import python_simulator as sim
 from tictoc import tic, toc
 import datetime
 import sys
 import pickle
 
+import python_simulator as sim
+from gen_requests import gen_requests
+
 num_of_DSs = 19
 num_of_clients = 19
 
-## This reduces the memory print of the trace by using the smallest type that still supports the values in the trace
-## Note: this configuration can support up to 2^8 locations, and traces of length up to 2^32
-def reduce_trace_mem_print(trace_df):
-    new_trace_df = trace_df
-    new_trace_df['req_id'] = trace_df['req_id'].astype('uint32')
-    new_trace_df['key'] = trace_df['key'].astype('uint32')
-    new_trace_df['client_id'] = trace_df['client_id'].astype('uint8')
-    for i in range(17):
-        new_trace_df['%d'%i] = trace_df['%d'%i].astype('uint8')
-    return new_trace_df
-
-## Which file index to use. Relevant to the case where we want to use multiple trace files
-file_index = 6
-
-## Read the trace, and reduce its memory print
-trace_df = pd.read_csv('../../Python_Infocom19/trace_5m_%d.csv' % file_index)
-trace_df = reduce_trace_mem_print(trace_df)
-
-## For debugging / shorter runs, pick a prefix of the trace
-## Eventually, req_df is the variable fed into the simulation.
-## The default value for req_df is the whole trace, trace_df
-# trace_length=10000
-req_df = trace_df#.head(trace_length)
-#req_df.info(memory_usage='deep')
+## Generate the requests to be fed into the simulation. For debugging / shorter runs, pick a prefix of the trace, of length max_trace_length
+max_trace_length=10000
+requests = gen_requests ('C:/Users/ofanan/Google Drive/Comnet/BF_n_Hash/Python_Infocom19/trace_5m_6.csv', max_trace_length)
 
 # load the OVH network distances and BWs
 client_DS_dist_df = pd.read_csv('../../Python_Infocom19/ovh_dist.csv',index_col=0)
@@ -61,10 +42,10 @@ def run_sim_collection(DS_size, BF_size, beta, req_df, client_DS_dist, client_DS
     DS_insert_mode = 1
 
     main_sim_dict = {}
-    for k_loc in [1, 3, 5]:
+    for k_loc in [1]: #, 3, 5]:
         print ('k_loc = ', k_loc)
         k_loc_sim_dict = {}
-        for alg_mode in [sim.ALG_OPT, sim.ALG_PGM, sim.ALG_CHEAP, sim.ALG_ALL, sim.ALG_KNAP, sim.ALG_POT]:
+        for alg_mode in [sim.ALG_OPT]: #, sim.ALG_PGM, sim.ALG_CHEAP, sim.ALG_ALL, sim.ALG_KNAP, sim.ALG_POT]:
             tic()
             sm = sim.Simulator(alg_mode, DS_insert_mode, req_df, client_DS_dist, client_DS_BW, bw_regularization, beta, k_loc, DS_size = DS_size, BF_size = BF_size)
             sm.start_simulator()

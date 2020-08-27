@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
-import python_simulator as sim
 from tictoc import tic, toc
 import datetime
 import sys
 import pickle
 
+import python_simulator as sim
+from gen_requests import gen_requests
 # A main file for running a sim of access strategies for different DSs (Data Stores) sizes.
 
 num_of_DSs = 19
@@ -17,34 +18,12 @@ num_of_clients = 19
 #    a = np.tril(np.random.randint(1,max_dist,(num,num)), k=-1)
 #    return a + np.transpose(a) + np.diag(diag_value * np.ones(num))
 
-## This reduces the memory print of the trace by using the smallest type that still supports the values in the trace
-## Note: this configuration can support up to 2^8 locations, and traces of length up to 2^32
-def reduce_trace_mem_print(trace_df):
-    new_trace_df = trace_df
-    new_trace_df['req_id'] = trace_df['req_id'].astype('uint32')
-    new_trace_df['key'] = trace_df['key'].astype('uint32')
-    new_trace_df['client_id'] = trace_df['client_id'].astype('uint8')
-    for i in range(17):
-        new_trace_df['%d'%i] = trace_df['%d'%i].astype('uint8')
-    return new_trace_df
 
-## Which file index to use. Relevant to the case where we want to use multiple trace files
-file_index = 6
+## Generate the requests to be fed into the simulation. For debugging / shorter runs, pick a prefix of the trace, of length max_trace_length
+max_trace_length=10000
+requests = gen_requests ('C:/Users/ofanan/Google Drive/Comnet/BF_n_Hash/Python_Infocom19/trace_5m_6.csv', max_trace_length)
 
-## Read the trace, and reduce its memory print
-trace_df = pd.read_csv('C:/Users/ofanan/Google Drive/Comnet/BF_n_Hash/Python_Infocom19/trace_5m_%d.csv' % file_index)
-#trace_df.info(memory_usage='deep')
-trace_df = reduce_trace_mem_print(trace_df)
-#trace_df.info(memory_usage='deep')
-
-## For debugging / shorter runs, pick a prefix of the trace
-## Eventually, req_df is the variable fed into the simulation.
-## The default value for req_df is the whole trace, trace_df
-trace_length=10000
-req_df = trace_df.head(trace_length)
-#req_df.info(memory_usage='deep')
-
-## Code for generating the random dist and BW matrices
+## Code for generating a random dist and BW matrices
 #client_DS_dist = gen_rand_matrix(17)
 #client_DS_BW = gen_rand_matrix(17, diag_value = np.infty)
 
@@ -63,7 +42,7 @@ BF_size_for_DS_size[0.03] = {1000: 7299}
 BF_size_for_DS_size[0.04] = {1000: 6711}
 
 # Loop over all data store sizes, and all algorithms, and collect the data
-def run_sim_collection(DS_size_vals, FP_rate, beta, k_loc, req_df, client_DS_dist, client_DS_BW, bw_regularization):
+def run_sim_collection(DS_size_vals, FP_rate, beta, k_loc, requests, client_DS_dist, client_DS_BW, bw_regularization):
     DS_insert_mode = 1
 
     main_sim_dict = {}
@@ -74,7 +53,7 @@ def run_sim_collection(DS_size_vals, FP_rate, beta, k_loc, req_df, client_DS_dis
         for alg_mode in [sim.ALG_OPT]: #, sim.ALG_ALL, sim.ALG_CHEAP, sim.ALG_POT, sim.ALG_PGM]: # in the homogeneous setting, no need to run Knap since it is equivalent to 6 (Pot)
             tic()
             print (datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S"))
-            sm = sim.Simulator(alg_mode, DS_insert_mode, req_df, client_DS_dist, client_DS_BW, bw_regularization, beta, k_loc, DS_size = DS_size, BF_size = BF_size)
+            sm = sim.Simulator(alg_mode, DS_insert_mode, requests, client_DS_dist, client_DS_BW, bw_regularization, beta, k_loc, DS_size = DS_size, BF_size = BF_size)
             sm.start_simulator()
             toc()
             DS_size_sim_dict[alg_mode] = sm
@@ -87,12 +66,13 @@ FP_rate = 0.02
 k_loc = 3
 
 DS_size_vals = [200] #, 400, 600, 800, 1000, 1200, 1400, 1600]
-main_sim_dict = run_sim_collection(DS_size_vals, FP_rate, beta, k_loc, req_df, client_DS_dist, client_DS_BW, bw_regularization)
+
+main_sim_dict = run_sim_collection(DS_size_vals, FP_rate, beta, k_loc, requests, client_DS_dist, client_DS_BW, bw_regularization)
 
 time_str = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
 
 sys.setrecursionlimit(50000)
-res_file = open('res/%s_pickle_sim_dict_DS_size_%d_%d_beta_%d_kloc_%d_FP_%.2f' % (time_str ,DS_size_vals[0], DS_size_vals[-1], beta, k_loc, FP_rate) , 'wb')
+res_file = open('../res/%s_pickle_sim_dict_DS_size_%d_%d_beta_%d_kloc_%d_FP_%.2f' % (time_str ,DS_size_vals[0], DS_size_vals[-1], beta, k_loc, FP_rate) , 'wb')
 pickle.dump(main_sim_dict , res_file)
 res_file.close()
 

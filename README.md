@@ -1,7 +1,11 @@
-## codemix-vanilla-python
+## Access Strategies for Network Caching - Simulators 
 
-Template for project creation of Python inside CodeMix
+This project provides simulator tools to test several access strategies for network caching. 
+
+THe project is based on the paper:
+
+	I. Cohen, Gil Einziger, R. Friedman, and G. Scalosub, "Access Strategies for Network Caching", IEEE Infocom 2019, pp.28-36.
 
 # Contents
 
-This template project is an example that prints on the console the Hello World!!! Greeting with the Python langage.
+TBD.
