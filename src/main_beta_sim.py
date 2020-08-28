@@ -20,9 +20,9 @@ max_trace_length=10000
 requests = gen_requests ('C:/Users/ofanan/Documents/traces/wiki/wiki1.1190448987.csv', max_trace_length)
 
 # load the OVH network distances and BWs
-client_DS_dist_df = pd.read_csv('../resources/ovh_dist.csv',index_col=0)
+client_DS_dist_df = pd.read_csv('resources/ovh_dist.csv',index_col=0)
 client_DS_dist = np.array(client_DS_dist_df)
-client_DS_BW_df = pd.read_csv('../resources/ovh_bw.csv',index_col=0)
+client_DS_BW_df = pd.read_csv('resources/ovh_bw.csv',index_col=0)
 client_DS_BW = np.array(client_DS_BW_df)
 bw_regularization = np.max(np.tril(client_DS_BW,-1))
 
