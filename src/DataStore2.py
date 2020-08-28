@@ -2,7 +2,7 @@ import mod_pylru
 import itertools
 import BloomFilter
 
-class DataStore(object):
+class DataStore (object):
     
     def __init__(self, ID, size = 1000, bf_hash_count = 5, miss_rate_alpha = 0.1, miss_rate_window = 1000, miss_rate_init = 0.5,
                  bf_size = 8000):
@@ -11,7 +11,7 @@ class DataStore(object):
             ID:                 datastore ID 
             size:               number of elements that can be stored in the datastore (default 1000)
             miss_rate_alpha:    sliding window parameter for miss-rate estimation (default 0.1)
-            miss_rate_window:   how often (queries) shoudl the miss-rate estimation be updated (default 1000, same as size)
+            miss_rate_window:   how often (queries) should the miss-rate estimation be updated (default 1000, same as size)
             miss_rate_init:     initial miss-rate estimation (default 0.5)
         """
         self.ID = ID

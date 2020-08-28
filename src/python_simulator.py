@@ -1,19 +1,19 @@
 import numpy as np
 import pandas as pd
-import DataStore
+import DataStore2 as DataStore
 import Client
 import candidate
 import node
 import sys
 import pickle
 
-ALG_OPT   = 1
-ALG_PGM   = 2
-ALG_CHEAP = 3
-ALG_ALL   = 4
-ALG_KNAP  = 5
-ALG_POT   = 6
-NUM_OF_ALGS = 6
+ALG_OPT     = 1 # Optimal access strategy (perfect indicator)
+ALG_PGM     = 2 # PGM alg', detailed in Access Strategies journal paper
+ALG_CHEAP   = 3 # Cheapest (CPI) strategy: in case of a positive indication, access the minimal-cost DS with positive indication 
+ALG_ALL     = 4 # All (EPI) strategy: in case of positive indications, access all DSs with positive indications
+ALG_KNAP    = 5 # Knapsack-based alg'. See Access Strategies papers.
+ALG_POT     = 6 # Potential-based alg'. See Access Strategies papers.
+NUM_OF_ALGS = 6 # Number of algs'
 
 # client action: updated according to what client does
 # 0: init, 1: hit upon access of DSs, 2: miss upon access of DSs, 3: high DSs cost, prefer beta, 4: no pos ind, pay beta
@@ -71,12 +71,12 @@ class Simulator(object):
         
         self.req_df = req_df
         
-        self.pos_DS_list = {}
+        self.pos_DS_list = {} # List of DSs with positive indication (to be updated for every request)
         
         self.client_list = self.init_client_list()
         
         self.cur_req_cnt = float(-1)
-        self.cur_pos_DS_list = [] #list of the DSs with pos' ind' for the current request
+        self.cur_pos_DS_list = [] #list of the DSs with pos' ind' (positive indication) for the current request
 
         self.total_cost = float(0)
         self.total_access_cost = float(0)
@@ -90,7 +90,7 @@ class Simulator(object):
         self.avg_DS_hit_ratio = float(0)
 
     # Returns an np.array of the DSs with positive ind'
-    def get_pos_DS_list(self, key):
+    def get_indications(self, key):
         return np.array([DS.ID for DS in self.DS_list if (key in DS.bf)])
 
     # Returns true iff key is found in at least of one of DSs specified by DS_index_list
@@ -116,30 +116,30 @@ class Simulator(object):
     def start_simulator(self):
         # print ('alg_mode=%d, kloc = %d, beta = %d, insertion_mode=%d' % (self.alg_mode, self.k_loc, self.beta, self.DS_insert_mode))
         np.random.seed(self.rand_seed)
-        for req_ind in range(self.req_df.shape[0]):
-            if self.DS_insert_mode == 3: # ego mode
+        for req_id in range(self.req_df.shape[0]): # for each request in the trace... 
+            if self.DS_insert_mode == 3: # ego mode: n/(n+1) of the requests enter to a random DS. 1/(n+1) of the requests belong to a single "ego" client.
                 # re-assign the request to client 0 w.p. 1/(self.num_of_clients+1) and handle it. otherwise, put it in a random DS
                 if np.random.rand() < 1/(self.num_of_clients+1):
-                    self.req_df.set_value(req_ind, 'client_id', 0)
-                    self.handle_request(self.req_df.iloc[req_ind])
+                    self.req_df.set_value(req_id, 'client_id', 0)
+                    self.handle_request(self.req_df.iloc[req_id])
                 else:
-                    self.insert_key_to_random_DSs(self.req_df.iloc[req_ind])
+                    self.insert_key_to_random_DSs(self.req_df.iloc[req_id]) # NOTE: the current imp' of insert_key_to_random_DSs() isn't really random... 
             else: # fix or distributed mode
-                self.handle_request(self.req_df.iloc[req_ind])
+                self.handle_request(self.req_df.iloc[req_id]) #fix mode (the one that is currently used): assign each request to a single DS, which is picked uar from all DSs  
                 if self.DS_insert_mode == 2: # distributed mode
-                    self.insert_key_to_closest_DS(self.req_df.iloc[req_ind])
+                    self.insert_key_to_closest_DS(self.req_df.iloc[req_id])
         self.gather_statistics()
         print ('tot_cost=%.2f, tot_access_cost= %.2f, hit_ratio = %.2f, high_cost_mp_cnt = %d, non_comp_miss_cnt = %d, comp_miss_cnt = %d, access_cnt = %d' % (self.total_cost, self.total_access_cost, self.hit_ratio, self.high_cost_mp_cnt, self.non_comp_miss_cnt, self.comp_miss_cnt, self.access_cnt)        )
         
     def update_mr_of_DS(self):
-        self.mr_of_DS = np.array([DS.mr_cur[-1] for DS in self.DS_list])
+        self.mr_of_DS = np.array([DS.mr_cur[-1] for DS in self.DS_list]) # For each 1 <= i<= n, Copy the miss rate estimation of DS i to mr_of_DS(i)
 
     def handle_request(self, req):
         self.cur_req_cnt += 1
-        self.cur_pos_DS_list = self.get_pos_DS_list(req.key)
-        self.update_mr_of_DS()
+        self.cur_pos_DS_list = self.get_indications(req.key) # Write all the (binary) indications to the vector cur_pos_DS_list 
+        self.update_mr_of_DS()                               # Update the miss rates of the DSs; the updated miss rates of DS i will be written to mr_of_DS[i]   
 
-        # check if there are no positive indicators. in such a case this is a compulsory miss
+        # check if there are no positive indicators. in such a case this is a compulsory miss (assuming no false-negatives)
         if self.cur_pos_DS_list.size == 0:
             self.client_list[req.client_id].comp_miss_cnt += 1
             self.client_list[req.client_id].total_cost += self.beta
@@ -173,7 +173,7 @@ class Simulator(object):
     def insert_key_to_DSs(self, req):
         # insert key to all k_loc DSs
         for i in range(self.k_loc):
-            self.DS_list[req['%d'%i]].insert(req.key)
+            self.DS_list[req['%d'%i]].insert(req.key) # This actually insert the key to DSs 0, 1, ... k_loc-1. 
             
     def access_cheapest(self, client_id, req):
 

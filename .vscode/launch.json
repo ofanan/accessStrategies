@@ -8,7 +8,7 @@
             "name": "Python: File",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/src/hello-world.py"
+            "program": "${workspaceFolder}/src/parse_beta_res.py"
         }
     ]
 }
