@@ -1,0 +1,14 @@
+alias .="pwd"
+alias py="python"
+alias c="clear"
+alias l="less"
+alias so="source"
+alias ltr="ls -ltr"
+alias ltra="ls -ltra"
+alias la="ls -a"
+alias g="grep"
+alias aliaser="source .myalias_accessStrategies.txt"
+alias h=history
+alias commit='c; git add -A; git commit'
+source ../../‏‏‏‏.alias_pusher_accessStrategies.txt
+alias compush='c; commit; pusher'

@@ -136,7 +136,7 @@ class Simulator(object):
 
     def handle_request(self, req):
         self.cur_req_cnt += 1
-        self.cur_pos_DS_list = self.get_indications(req.key) # Write all the (binary) indications to the vector cur_pos_DS_list 
+        self.cur_pos_DS_list = self.get_indications(req.key) ## cur_pos_DS_list <- list of DSs with positive indications
         self.update_mr_of_DS()                               # Update the miss rates of the DSs; the updated miss rates of DS i will be written to mr_of_DS[i]   
 
         # check if there are no positive indicators. in such a case this is a compulsory miss (assuming no false-negatives)
@@ -173,7 +173,7 @@ class Simulator(object):
     def insert_key_to_DSs(self, req):
         # insert key to all k_loc DSs
         for i in range(self.k_loc):
-            self.DS_list[req['%d'%i]].insert(req.key) # This actually insert the key to DSs 0, 1, ... k_loc-1. 
+            self.DS_list[req['%d'%i]].insert(req.key)  
             
     def access_cheapest(self, client_id, req):
 
@@ -335,7 +335,7 @@ class Simulator(object):
     
     def access_potential(self, client_id, req):
 
-        sorted_pos_DS_cost_indices = sorted(self.cur_pos_DS_list, key=self.client_DS_cost[client_id].__getitem__)
+        #sorted_pos_DS_cost_indices = sorted (self.cur_pos_DS_list, key=self.client_DS_cost[client_id].__getitem__)
         sorted_pos_DS_mr_indices = sorted(self.cur_pos_DS_list, key=self.mr_of_DS.__getitem__)
         potential_values = [np.sum(np.take(self.client_DS_cost[client_id] , sorted_pos_DS_cost_indices[:k+1])) +
                             self.beta * np.product(np.take(self.mr_of_DS , sorted_pos_DS_mr_indices[:k+1]))

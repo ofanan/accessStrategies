@@ -44,7 +44,7 @@ def run_sim_collection(DS_size, BF_size, beta, requests, client_DS_dist, client_
     for k_loc in [1]: #, 3, 5]:
         print ('k_loc = ', k_loc)
         k_loc_sim_dict = {}
-        for alg_mode in [sim.ALG_OPT]: #, sim.ALG_PGM, sim.ALG_CHEAP, sim.ALG_ALL, sim.ALG_KNAP, sim.ALG_POT]:
+        for alg_mode in [sim.ALG_OPT, sim.ALG_PGM]: #, sim.ALG_CHEAP, sim.ALG_ALL, sim.ALG_KNAP, sim.ALG_POT]:
             tic()
             sm = sim.Simulator(alg_mode, DS_insert_mode, requests, client_DS_dist, client_DS_BW, bw_regularization, beta, k_loc, DS_size = DS_size, BF_size = BF_size)
             sm.start_simulator()
