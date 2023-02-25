@@ -1,4 +1,4 @@
-## Access Strategies for Network Caching with Staleness
+## Access Strategies for Network Caching
 
 This project provides simulation tools to test several access strategies for distributed caching in the common practical case, where the information about the cached content may be stale. In this problem, a user, who is equipped by several caches, receives from them periodical updates about the cached content; such updates are commonly called indicators. The user has to select which caches to access, to obtain the requested datum in the lowest price and maximum certainty possible. For details about the problem and the algorithms used, please refer to the paper:
 
