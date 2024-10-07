@@ -6,5 +6,5 @@ For details about the problem and the algorithms used, please refer to the paper
 
 [1] I. Cohen, Gil Einziger, R. Friedman, and G. Scalosub, [Access Strategies for Network Caching](https://www.researchgate.net/profile/Itamar-Cohen-2/publication/346732877_Access_Strategies_for_Network_Caching/links/5fd27eeea6fdcc697bf6f924/Access-Strategies-for-Network-Caching.pdf), IEEE Transactions on Networking, Vol. 29(2), 2021, pp.609-622.
 
-Note: this is an obsolete repo. Newer projects with more advanced capabilities can be found in the [FIAT repo[(https://github.com/ofanan/FIAT).
+Note: this is an obsolete repo. Newer projects with more advanced capabilities can be found in the [FIAT repo](https://github.com/ofanan/FIAT).
  
